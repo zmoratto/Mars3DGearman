@@ -44,7 +44,8 @@ def process_timeout( p ):
 
 # Helper function to run command
 def run_cmd( cmd, time=3600 ):
-    proc = subprocess.Popen( cmd )
+    print "Running cmd: %s" % cmd
+    proc = subprocess.Popen( cmd, shell=True )
     t = threading.Timer( time, process_timeout, [proc] )
     t.start()
     (stdoutdata, stderrdata) = proc.communicate()
