@@ -46,7 +46,7 @@ for line in job_file.readlines():
     else:
         print "Skipping %s" % line
 
-    while len(requests) > 9:
+    while len(requests) > 19:
         draw_screen_status()
         time.sleep(0.5)
 
