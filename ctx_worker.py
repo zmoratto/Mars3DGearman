@@ -38,14 +38,14 @@ def process_timeout( p ):
     if p.poll() == None:
         try:
             print "Process taking too long to complete"
-            p.kill()
+            p.killpg(pro.pid, signal.SIGTERM)
         except:
             pass
 
 # Helper function to run command
 def run_cmd( cmd, time=3600 ):
     print "Running cmd: %s" % cmd
-    proc = subprocess.Popen( cmd, shell=True )
+    proc = subprocess.Popen( cmd, shell=True, preexec_fn=os.setsid )
     t = threading.Timer( time, process_timeout, [proc] )
     t.start()
     (stdoutdata, stderrdata) = proc.communicate()
