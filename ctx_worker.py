@@ -106,7 +106,7 @@ def task_process_ctx( gearman_worker, gearman_job ):
     default = open('stereo.default','w')
     default.write("alignment-method homography\nforce-use-entire-range       # Use entire input range\nprefilter-mode 2\nprefilter-kernel-width 1.4\ncost-mode 2\ncorr-kernel 21 21\nsubpixel-mode 2\nsubpixel-kernel 19 19\nrm-half-kernel 5 5\nrm-min-matches 60\nrm-threshold 3\nrm-cleanup-passes 1\nnear-universe-radius 0.0\nfar-universe-radius 0.0\n")
     default.close()
-    if not run_cmd( "stereo_pprc *.2.cub %s | tee -a log" % prefix, 10):
+    if not run_cmd( "stereo_pprc *.2.cub %s | tee -a log" % prefix ):
         return "Failed"
 
     # corr
