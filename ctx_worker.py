@@ -104,19 +104,19 @@ def task_process_ctx( gearman_worker, gearman_job ):
     # pprc
     gearman_worker.send_job_status( gearman_job, 5, 12 )
     default = open('stereo.default','w')
-    default.write("alignment-method homography\nforce-use-entire-range       # Use entire input range\nprefilter-mode 2\nprefilter-kernel-width 1.4\ncost-mode 2\ncorr-kernel 21 21\nsubpixel-mode 2\nsubpixel-kernel 19 19\nrm-half-kernel 5 5\nrm-min-matches 60\nrm-threshold 3\nrm-cleanup-passes 1\nnear-universe-radius 0.0\nfar-universe-radius 0.0\n")
+    default.write("alignment-method affineepipolar\nforce-use-entire-range       # Use entire input range\nprefilter-mode 2\nprefilter-kernel-width 1.4\ncost-mode 2\ncorr-kernel 19 19\nsubpixel-mode 2\nsubpixel-kernel 17 17\nrm-half-kernel 5 5\nrm-min-matches 60\nrm-threshold 3\nrm-cleanup-passes 1\nnear-universe-radius 0.0\nfar-universe-radius 0.0\n")
     default.close()
     if not run_cmd( "stereo_pprc *.2.cub %s | tee -a log" % prefix ):
         return "Failed"
 
     # corr
     gearman_worker.send_job_status( gearman_job, 6, 12 )
-    if not run_cmd( "stereo_corr *.2.cub %s | tee -a log" % prefix, 3600*2):
+    if not run_cmd( "stereo_corr --corr-timeout 30 *.2.cub %s | tee -a log" % prefix):
         return "Failed"
 
     # rfne
     gearman_worker.send_job_status( gearman_job, 7, 12 )
-    if not run_cmd( "stereo_rfne *.2.cub %s | tee -a log" % prefix, 3600*6):
+    if not run_cmd( "stereo_rfne *.2.cub %s | tee -a log" % prefix):
         return "Failed"
 
     # fltr
