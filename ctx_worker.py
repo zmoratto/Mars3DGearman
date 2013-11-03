@@ -74,15 +74,21 @@ def task_process_ctx( gearman_worker, gearman_job ):
 
     # download left
     gearman_worker.send_job_status( gearman_job, 2, 12 )
-    if not os.path.exists(arguments[0]+".IMG"):
-        if not run_cmd( "grep %s %s/ctx_url_lookup2 | xargs curl -O" % (arguments[0],ctx_dir) ):
-            return "Failed"
+    if not os.path.exists(arguments[0]+".IMG.bz2"):
+        if not os.path.exists(arguments[0]+".IMG"):
+            if not run_cmd( "grep %s %s/ctx_url_lookup2 | xargs curl -O" % (arguments[0],ctx_dir) ):
+                return "Failed"
+    else:
+        run( "bzip2 -d %s.IMG.bz2" % arguments[0] );
 
     # download right
     gearman_worker.send_job_status( gearman_job, 3, 12 )
-    if not os.path.exists(arguments[1]+".IMG"):
-        if not run_cmd( "grep %s %s/ctx_url_lookup2 | xargs curl -O" % (arguments[1],ctx_dir) ):
-            return "Failed"
+    if not os.path.exists(arguments[1]+".IMG.bz2"):
+        if not os.path.exists(arguments[1]+".IMG"):
+            if not run_cmd( "grep %s %s/ctx_url_lookup2 | xargs curl -O" % (arguments[1],ctx_dir) ):
+                return "Failed"
+    else:
+        run( "bzip2 -d %s.IMG.bz2" % arguments[1] );
 
     # calibrate
     gearman_worker.send_job_status( gearman_job, 4, 12 )
@@ -104,13 +110,13 @@ def task_process_ctx( gearman_worker, gearman_job ):
     # pprc
     gearman_worker.send_job_status( gearman_job, 5, 12 )
     default = open('stereo.default','w')
-    default.write("alignment-method affineepipolar\nforce-use-entire-range       # Use entire input range\nprefilter-mode 2\nprefilter-kernel-width 1.4\ncost-mode 2\ncorr-kernel 19 19\nsubpixel-mode 2\nsubpixel-kernel 17 17\nrm-half-kernel 5 5\nrm-min-matches 60\nrm-threshold 3\nrm-cleanup-passes 1\nnear-universe-radius 0.0\nfar-universe-radius 0.0\n")
+    default.write("alignment-method affineepipolar\nforce-use-entire-range       # Use entire input range\nprefilter-mode 2\nprefilter-kernel-width 1.4\ncost-mode 2\ncorr-kernel 21 21\nsubpixel-mode 1\nsubpixel-kernel 17 17\nrm-half-kernel 5 5\nrm-min-matches 60\nrm-threshold 3\nrm-cleanup-passes 1\nnear-universe-radius 0.0\nfar-universe-radius 0.0\n")
     default.close()
     if not run_cmd( "stereo_pprc *.2.cub %s | tee -a log" % prefix ):
         return "Failed"
 
     # corr
-    gearman_worker.send_job_status( gearman_job, 6, 12 )
+    gearman_worker.send_job_status( gearman_job, 6, 12, 7200 )
     if not run_cmd( "stereo_corr --corr-timeout 30 *.2.cub %s | tee -a log" % prefix):
         return "Failed"
 
@@ -148,6 +154,10 @@ def task_process_ctx( gearman_worker, gearman_job ):
     if not run_cmd( "parallel bzip2 -z -9 ::: *cub *IMG"):
         return "Failed"
     if not run_cmd( "rm -rf %s" % job_name):
+        return "Failed"
+    if not run_cmd( "rm -rf *cub" ):
+        return "Failed"
+    if not run_cmd( "rm -rf *IMG" ):
         return "Failed"
 
     return "Finished"
