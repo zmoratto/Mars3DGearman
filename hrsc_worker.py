@@ -130,19 +130,14 @@ def task_process_hrsc( gearman_worker, gearman_job ):
 
     # dem
     gearman_worker.send_job_status( gearman_job, 10, 12 )
-    lat = 0
-    if arguments[0][21:22] == 'S':
-        lat = -int(arguments[0][19:21])
-    else:
-        lat = int(arguments[0][19:21])
-    if not run_cmd( "point2dem %s-PC.tif --orthoimage %s-L.tif --nodata -32767 --t_srs IAU2000:49910 | tee -a log" % (prefix,prefix,lat)):
+    if not run_cmd( "point2dem %s-PC.tif --orthoimage %s-L.tif --nodata -32767 --t_srs '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +a=3396190 +b=3376200 +units=m +no_defs' | tee -a log" % (prefix,prefix)):
         return "Failed"
 
     # move and clean up
     gearman_worker.send_job_status( gearman_job, 11, 12 )
-    if not run_cmd( "mv %s-DEM.tif %s/DEM/" % (prefix,ctx_dir)):
+    if not run_cmd( "mv %s-DEM.tif %s/DEM/" % (prefix,hrsc_dir)):
         return "Failed"
-    if not run_cmd( "mv %s-DRG.tif %s/DRG/" % (prefix,ctx_dir)):
+    if not run_cmd( "mv %s-DRG.tif %s/DRG/" % (prefix,hrsc_dir)):
         return "Failed"
     if not run_cmd( "parallel bzip2 -z -9 ::: *cub *IMG"):
         return "Failed"
