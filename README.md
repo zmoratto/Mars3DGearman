@@ -1,7 +1,7 @@
 Mars3DGearman
 =============
 
-Gearman scripts for doing 3D processing of Mars Mission data.
+Gearman scripts for doing 3D processing of Mars Mission data. Currently supports CTX and HRSC. Can totally be more if we like.
 
 ## Prerequisite
 
@@ -20,7 +20,11 @@ You need to start the CTX processor somewhere were he'll never die. This script 
 > ctrl + a + d
 </pre>
 
-At the moment that script is just look at the included CTX_stereo_pair.txt to see what needs to be performed.
+At the moment that script is just looks at the included CTX_stereo_pair.txt to see what needs to be performed. This Python code has been fairly unstable for me. I'd like to blame the Python port of Gearman. Alternatively, it is possible to list off the jobs yourself using the gearman command. Here's the HRSC variant. Set -jN to be as many jobs you'd like to be running simultaneously. This number is going to be limited by the number of workers you spawn later on.
+
+<pre>
+parallel -j10 "echo {} | gearman -f hrsc_stereo" :::: hrsc_stereo_sort.csv
+</pre>
 
 Now you need to start the workers. Currently the workers are stupid and only look for the server, ctx_processor, via the url, localhost. When I want to run jobs on machines at NASA I actually have my server perform a reverse ssh on the gearman port.
 
